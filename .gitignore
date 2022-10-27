@@ -1,0 +1,7 @@
+6 lines (5 sloc)  51 Bytes
+
+node_modules
+
+#Hardhat files
+cache
+artifacts
