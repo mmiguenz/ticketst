@@ -5,9 +5,17 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
 contract TicketsT {
-    address payable public owner;
+    address payable public owner;    
+    uint256 totalTickets;
+    uint256 currentPrice;
+    uint256 soldTickets;
 
-    constructor() payable {
+    constructor(uint256 _ticketInitialPrice) payable {
         owner = payable(msg.sender);
+        currentPrice = _ticketInitialPrice;        
+    }
+
+    function getTicketPrice() public view returns(uint256) {
+        return currentPrice;
     }
 }

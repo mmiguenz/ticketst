@@ -7,6 +7,7 @@ import {
   Contract,
   ContractFactory,
   PayableOverrides,
+  BigNumberish,
 } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
 import type { PromiseOrValue } from "../common";
@@ -14,9 +15,28 @@ import type { TicketsT, TicketsTInterface } from "../TicketsT";
 
 const _abi = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_ticketInitialPrice",
+        type: "uint256",
+      },
+    ],
     stateMutability: "payable",
     type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "getTicketPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -34,7 +54,7 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060f7806100526000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c80638da5cb5b14602d575b600080fd5b60336047565b604051603e919060a8565b60405180910390f35b60008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000609482606b565b9050919050565b60a281608b565b82525050565b600060208201905060bb6000830184609b565b9291505056fea2646970667358221220aaf4c0197d3280305461f578db4575e7bff6d3b5e8cb0551dba1c49bce2e9afb64736f6c63430008090033";
+  "0x6080604052604051610254380380610254833981810160405281019061002591906100ad565b336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080600281905550506100da565b600080fd5b6000819050919050565b61008a81610077565b811461009557600080fd5b50565b6000815190506100a781610081565b92915050565b6000602082840312156100c3576100c2610072565b5b60006100d184828501610098565b91505092915050565b61016b806100e96000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806387bb7ae01461003b5780638da5cb5b14610059575b600080fd5b610043610077565b60405161005091906100be565b60405180910390f35b610061610081565b60405161006e919061011a565b60405180910390f35b6000600254905090565b60008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000819050919050565b6100b8816100a5565b82525050565b60006020820190506100d360008301846100af565b92915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000610104826100d9565b9050919050565b610114816100f9565b82525050565b600060208201905061012f600083018461010b565b9291505056fea264697066735822122044e3461f08f6a3fc1df83324e5bfea2641bef0812c26c2d3fe2db96f3a601bda64736f6c63430008090033";
 
 type TicketsTConstructorParams =
   | [signer?: Signer]
@@ -54,14 +74,19 @@ export class TicketsT__factory extends ContractFactory {
   }
 
   override deploy(
+    _ticketInitialPrice: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<TicketsT> {
-    return super.deploy(overrides || {}) as Promise<TicketsT>;
+    return super.deploy(
+      _ticketInitialPrice,
+      overrides || {}
+    ) as Promise<TicketsT>;
   }
   override getDeployTransaction(
+    _ticketInitialPrice: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): TransactionRequest {
-    return super.getDeployTransaction(overrides || {});
+    return super.getDeployTransaction(_ticketInitialPrice, overrides || {});
   }
   override attach(address: string): TicketsT {
     return super.attach(address) as TicketsT;

@@ -1,5 +1,3 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
@@ -13,9 +11,10 @@ describe("TikcketsT", function () {
     const [owner, otherAccount] = await ethers.getSigners();
 
     const TicketsT = await ethers.getContractFactory("TicketsT");
-    const ticketsT = await TicketsT.deploy({});
+    const ticketPrice = ethers.BigNumber.from("1000000000000000000")  
+    const ticketsT = await TicketsT.deploy(ticketPrice, {});
 
-    return { ticketsT, owner };
+    return { ticketsT, owner, ticketPrice };
   }
 
   describe("Deployment", function () {
@@ -31,5 +30,13 @@ describe("TikcketsT", function () {
 
       expect(await ticketsT.owner()).to.equal(owner.address);
     });    
+  });
+
+  describe("GetTicketPrice", function () {
+    it("Should Deploy Contract", async function () {      
+
+      const { ticketsT, ticketPrice } = await deployFixture();     
+      expect(await ticketsT.getTicketPrice()).to.equals(ticketPrice);
+    });   
   });
 });

@@ -22,13 +22,24 @@ import type {
 
 export interface TicketsTInterface extends utils.Interface {
   functions: {
+    "getTicketPrice()": FunctionFragment;
     "owner()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "owner"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "getTicketPrice" | "owner"
+  ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "getTicketPrice",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "getTicketPrice",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
 
   events: {};
@@ -61,22 +72,32 @@ export interface TicketsT extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    getTicketPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  getTicketPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    getTicketPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
+    getTicketPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    getTicketPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
