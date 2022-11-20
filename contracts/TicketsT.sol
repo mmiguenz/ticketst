@@ -1,21 +1,41 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-// Import this file to use console.log
-import "hardhat/console.sol";
+
+import "./TicketItem.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract TicketsT {
     address payable public owner;    
     uint256 totalTickets;
     uint256 currentPrice;
-    uint256 soldTickets;
+    uint256 public soldTickets;
+    mapping(address => uint256) public attendees;
+    event ticketEvent(uint256 recieved, uint256 ticketId);
+    TicketItem ticketContract;    
 
-    constructor(uint256 _ticketInitialPrice) payable {
+    constructor(uint256 _ticketInitialPrice, uint256 _totalTickets, address _ticketContract) payable {
         owner = payable(msg.sender);
-        currentPrice = _ticketInitialPrice;        
+        currentPrice = _ticketInitialPrice;  
+        totalTickets = _totalTickets;
+        ticketContract = TicketItem(_ticketContract);       
     }
 
     function getTicketPrice() public view returns(uint256) {
         return currentPrice;
+    }
+
+    function buyTicket() public payable {        
+       require(msg.value >= currentPrice, "lower than current price");
+       require(ticketsAvailable() > 0, "sold out");
+                         
+       soldTickets = soldTickets + 1;
+       ticketContract.mintTicket(msg.sender, soldTickets, "");
+       attendees[msg.sender] = soldTickets;       
+       emit ticketEvent(msg.value, soldTickets);       
+    }
+
+     function ticketsAvailable() public view returns(uint256) {        
+       return totalTickets - soldTickets;
     }
 }

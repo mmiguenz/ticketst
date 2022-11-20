@@ -24,46 +24,80 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "./common";
+} from "../common";
 
 export interface TicketsTInterface extends utils.Interface {
   functions: {
+    "attendees(address)": FunctionFragment;
     "buyTicket()": FunctionFragment;
     "getTicketPrice()": FunctionFragment;
     "owner()": FunctionFragment;
+    "soldTickets()": FunctionFragment;
+    "ticketsAvailable()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "buyTicket" | "getTicketPrice" | "owner"
+    nameOrSignatureOrTopic:
+      | "attendees"
+      | "buyTicket"
+      | "getTicketPrice"
+      | "owner"
+      | "soldTickets"
+      | "ticketsAvailable"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "attendees",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "buyTicket", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getTicketPrice",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "soldTickets",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ticketsAvailable",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(functionFragment: "attendees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "buyTicket", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getTicketPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "soldTickets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ticketsAvailable",
+    data: BytesLike
+  ): Result;
 
   events: {
-    "ticket(uint256)": EventFragment;
+    "ticketEvent(uint256,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ticket"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ticketEvent"): EventFragment;
 }
 
-export interface ticketEventObject {
+export interface ticketEventEventObject {
   recieved: BigNumber;
+  ticketId: BigNumber;
 }
-export type ticketEvent = TypedEvent<[BigNumber], ticketEventObject>;
+export type ticketEventEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  ticketEventEventObject
+>;
 
-export type ticketEventFilter = TypedEventFilter<ticketEvent>;
+export type ticketEventEventFilter = TypedEventFilter<ticketEventEvent>;
 
 export interface TicketsT extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -92,6 +126,11 @@ export interface TicketsT extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    attendees(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     buyTicket(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -99,7 +138,16 @@ export interface TicketsT extends BaseContract {
     getTicketPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    soldTickets(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    ticketsAvailable(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  attendees(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   buyTicket(
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -109,20 +157,41 @@ export interface TicketsT extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  soldTickets(overrides?: CallOverrides): Promise<BigNumber>;
+
+  ticketsAvailable(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
+    attendees(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     buyTicket(overrides?: CallOverrides): Promise<void>;
 
     getTicketPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    soldTickets(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ticketsAvailable(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
-    "ticket(uint256)"(recieved?: null): ticketEventFilter;
-    ticket(recieved?: null): ticketEventFilter;
+    "ticketEvent(uint256,uint256)"(
+      recieved?: null,
+      ticketId?: null
+    ): ticketEventEventFilter;
+    ticketEvent(recieved?: null, ticketId?: null): ticketEventEventFilter;
   };
 
   estimateGas: {
+    attendees(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     buyTicket(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -130,9 +199,18 @@ export interface TicketsT extends BaseContract {
     getTicketPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    soldTickets(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ticketsAvailable(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    attendees(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     buyTicket(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -140,5 +218,9 @@ export interface TicketsT extends BaseContract {
     getTicketPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    soldTickets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ticketsAvailable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
