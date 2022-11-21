@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
-import { TicketItem, TicketsT } from "../typechain-types";
+import { TicketsT } from "../typechain-types";
 
 describe("TikcketsT", function () {
   // We define a fixture to reuse the same setup in every test.

@@ -1,7 +1,7 @@
 6 lines (5 sloc)  51 Bytes
 
 node_modules
-
+.env
 #Hardhat files
 cache
 artifacts

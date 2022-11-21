@@ -6,12 +6,11 @@ async function main() {
  console.log(`TicketItem Deployed at: ${ticketItem.address}`)
  const ticketT =  await deployTicketT(ticketItem)
  console.log(`TicketT Deployed at: ${ticketT.address}`)
-
-  
 }
 
 const deployTicketItem = async () => {
-  const TicketItem = await ethers.getContractFactory("TicketItem");
+  // make signners from private key
+  const TicketItem = await ethers.getContractFactory("TicketItem",);
   const ticketItem = await TicketItem.deploy("Qatar-01", "Q01");
   await ticketItem.deployed();
   return ticketItem;
