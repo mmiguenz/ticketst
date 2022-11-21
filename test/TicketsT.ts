@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
-import { Ticket, TicketsT } from "../typechain-types";
+import { TicketItem, TicketsT } from "../typechain-types";
 
 describe("TikcketsT", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -15,7 +15,7 @@ describe("TikcketsT", function () {
 
     const TicketsT = await ethers.getContractFactory("TicketsT");
     const TicketItem = await ethers.getContractFactory("TicketItem");
-    const ticketPrice = ethers.BigNumber.from("1000000000000000000")
+    const ticketPrice = ethers.utils.parseEther("10")
     const totalTickets = 2
 
     const ticketItem = await TicketItem.deploy("Tickets", "TKT")
@@ -67,7 +67,7 @@ describe("TikcketsT", function () {
 
       const { ticketsT, customer } = await deployFixture();
 
-      const insuficentPrice = ethers.BigNumber.from("1")
+      const insuficentPrice = ethers.utils.parseEther("1")
     
       const tx = whenBuyTickets(ticketsT, customer, insuficentPrice)
 
