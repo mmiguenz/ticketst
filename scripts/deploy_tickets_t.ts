@@ -6,6 +6,11 @@ async function main() {
  console.log(`TicketItem Deployed at: ${ticketItem.address}`)
  const ticketT =  await deployTicketT(ticketItem)
  console.log(`TicketT Deployed at: ${ticketT.address}`)
+
+ await ticketItem.transferOwnership(ticketT.address)
+ console.log(`ownership of ${ticketItem.address} was transfered to : ${ticketT.address}`)
+
+
 }
 
 const deployTicketItem = async () => {
