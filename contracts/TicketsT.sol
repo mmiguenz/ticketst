@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "./TicketItem.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TicketsT is Ownable {
     uint256 totalTickets;
@@ -13,17 +14,20 @@ contract TicketsT is Ownable {
     event ticketEvent(uint256 recieved, uint256 ticketId);
     event priceChanged(uint256 newPrice);
     TicketItem ticketContract;
+    IERC20 eventTokenContract;
 
     constructor(
         uint256 _ticketInitialPrice,
         uint256 _totalTickets,
         address _ticketContract,
-        string[] memory _ticketsTokenUri
+        string[] memory _ticketsTokenUri,
+        IERC20 _eventToken
     ) {
         currentPrice = _ticketInitialPrice;
         totalTickets = _totalTickets;
         ticketContract = TicketItem(_ticketContract);
         ticketsTokenUri = _ticketsTokenUri;
+        eventTokenContract = IERC20(_eventToken);
     }
 
     function getTicketPrice() public view returns (uint256) {
@@ -34,7 +38,13 @@ contract TicketsT is Ownable {
         require(msg.value >= currentPrice, "lower than current price");
         require(ticketsAvailable() > 0, "sold out");
 
-        soldTickets = soldTickets + 1;
+        soldTickets = soldTickets + 1;        
+        
+        if (msg.value > currentPrice ) {
+           eventTokenContract.transfer(msg.sender, 10);
+        }
+
+
         ticketContract.mintTicket(
             msg.sender,
             soldTickets,

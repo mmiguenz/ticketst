@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
-import { TicketItem, TicketsT } from "../typechain-types";
+import { TicketItem, TicketsT, EventToken } from "../typechain-types";
 import { default as cidMap } from "../metadata/metadata-cid.json";
 describe("TikcketsT", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -15,6 +15,7 @@ describe("TikcketsT", function () {
 
     const TicketsT = await ethers.getContractFactory("TicketsT");
     const TicketItem = await ethers.getContractFactory("TicketItem");
+    const EventToken = await ethers.getContractFactory("EventToken");
     const ticketPrice = ethers.utils.parseEther("10")
     const totalTickets = 2
 
@@ -22,10 +23,13 @@ describe("TikcketsT", function () {
     await ticketItem.setBaseURI("https://ipfs.io/ipfs/");
 
     const cidList = [...Array(totalTickets).keys()].map(ticketId => cidMap[`ticket-${ticketId + 1}`])
-    const ticketsT = await TicketsT.deploy(ticketPrice, totalTickets, ticketItem.address, cidList, {});
 
+    const eventToken = await EventToken.deploy(ethers.utils.parseEther("10000"));
+    
+    const ticketsT = await TicketsT.deploy(ticketPrice, totalTickets, ticketItem.address, cidList, eventToken.address, {});
+    eventToken.transfer(ticketsT.address, await eventToken.totalSupply())
     await ticketItem.transferOwnership(ticketsT.address)
-    return { ticketsT, owner, ticketPrice, customer, totalTickets, customer2, customer3, ticketItem };
+    return { ticketsT, owner, ticketPrice, customer, totalTickets, customer2, customer3, ticketItem, eventToken };
   }
 
   describe("Deployment", function () {
@@ -79,6 +83,11 @@ describe("TikcketsT", function () {
 
       expect(currentPrice).to.be.equals(convertedLastPrice + convertedLastPrice);      
     }
+    
+    const shouldRetrieveWithTokensToCustomer = async (customer: SignerWithAddress, eventToken: EventToken) => {           
+
+      expect(await eventToken.balanceOf(customer.address)).to.be.equals(10);      
+    }
 
 
 
@@ -120,6 +129,15 @@ describe("TikcketsT", function () {
       const tx = await whenBuyTickets(ticketsT, customer, ticketPrice)
 
       await shouldIncrementTicketPrice(ticketsT, ticketPrice)
+    });
+
+    it("should retrieve with tokens when value sent is higher than current price", async function () {
+
+      const { ticketsT, customer, eventToken } = await deployFixture();
+      const ticketPrice = await  ticketsT.getTicketPrice();
+      const tx = await whenBuyTickets(ticketsT, customer, ethers.utils.parseEther("50"))
+
+      await shouldRetrieveWithTokensToCustomer(customer, eventToken)
     });
   });
 });
