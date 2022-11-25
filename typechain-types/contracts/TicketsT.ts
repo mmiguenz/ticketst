@@ -7,6 +7,7 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -32,8 +33,10 @@ export interface TicketsTInterface extends utils.Interface {
     "buyTicket()": FunctionFragment;
     "getTicketPrice()": FunctionFragment;
     "owner()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "soldTickets()": FunctionFragment;
     "ticketsAvailable()": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
@@ -42,8 +45,10 @@ export interface TicketsTInterface extends utils.Interface {
       | "buyTicket"
       | "getTicketPrice"
       | "owner"
+      | "renounceOwnership"
       | "soldTickets"
       | "ticketsAvailable"
+      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -57,12 +62,20 @@ export interface TicketsTInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "soldTickets",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "ticketsAvailable",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [PromiseOrValue<string>]
   ): string;
 
   decodeFunctionResult(functionFragment: "attendees", data: BytesLike): Result;
@@ -73,6 +86,10 @@ export interface TicketsTInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "soldTickets",
     data: BytesLike
   ): Result;
@@ -80,13 +97,31 @@ export interface TicketsTInterface extends utils.Interface {
     functionFragment: "ticketsAvailable",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "OwnershipTransferred(address,address)": EventFragment;
     "ticketEvent(uint256,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ticketEvent"): EventFragment;
 }
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface ticketEventEventObject {
   recieved: BigNumber;
@@ -139,9 +174,18 @@ export interface TicketsT extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     soldTickets(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     ticketsAvailable(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   attendees(
@@ -157,9 +201,18 @@ export interface TicketsT extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   soldTickets(overrides?: CallOverrides): Promise<BigNumber>;
 
   ticketsAvailable(overrides?: CallOverrides): Promise<BigNumber>;
+
+  transferOwnership(
+    newOwner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     attendees(
@@ -173,12 +226,28 @@ export interface TicketsT extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
     soldTickets(overrides?: CallOverrides): Promise<BigNumber>;
 
     ticketsAvailable(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+
     "ticketEvent(uint256,uint256)"(
       recieved?: null,
       ticketId?: null
@@ -200,9 +269,18 @@ export interface TicketsT extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     soldTickets(overrides?: CallOverrides): Promise<BigNumber>;
 
     ticketsAvailable(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -219,8 +297,17 @@ export interface TicketsT extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     soldTickets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ticketsAvailable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

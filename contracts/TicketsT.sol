@@ -3,10 +3,9 @@ pragma solidity ^0.8.9;
 
 
 import "./TicketItem.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TicketsT {
-    address payable public owner;    
+contract TicketsT is Ownable {  
     uint256 totalTickets;
     uint256 currentPrice;
     uint256 public soldTickets;
@@ -16,7 +15,6 @@ contract TicketsT {
     TicketItem ticketContract;    
 
     constructor(uint256 _ticketInitialPrice, uint256 _totalTickets, address _ticketContract, string[] memory _ticketsTokenUri) {
-        owner = payable(msg.sender);
         currentPrice = _ticketInitialPrice;  
         totalTickets = _totalTickets;
         ticketContract = TicketItem(_ticketContract);
