@@ -1,9 +1,12 @@
 import { ethers } from "hardhat";
 import { TicketsT } from "../typechain-types";
 import ticketsTAbi from "../artifacts/contracts/TicketsT.sol/TicketsT.json";
+import ticketsItemAbi from "../artifacts/contracts/TicketItem.sol/TicketItem.json";
 async function main() {
-    const ticketTAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+    const ticketTAddress = "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"
+    const tickeItemAddress = "0x610178dA211FEF7D417bC0e6FeD39F05609AD788"
     const contractInstance = await ethers.getContractAt(ticketsTAbi.abi, ticketTAddress);
+    const nftIntance = await ethers.getContractAt(ticketsItemAbi.abi, tickeItemAddress);
     const privateKeyCustomer = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
     const [signer1] = await ethers.getSigners();
@@ -18,8 +21,12 @@ async function main() {
     await contractInstance.connect(signer1).buyTicket({value: ticketPrice});
     soldtickets = await contractInstance.soldTickets();
     const ticketId = await contractInstance.attendees(signer1.address); 
+    const ticketMetadata = await nftIntance.tokenURI(ticketId);
     console.log(`ticket Id purchased: ${ticketId}`)
     console.log(`sold tickets: ${soldtickets}`);
+    console.log(`ticket metadata: ${ticketMetadata}`);
+
+
 
 
 }

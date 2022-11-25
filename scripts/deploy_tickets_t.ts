@@ -17,8 +17,9 @@ async function main() {
 const deployTicketItem = async () => {
   // make signners from private key
   const TicketItem = await ethers.getContractFactory("TicketItem",);
-  const ticketItem = await TicketItem.deploy("Qatar-01", "Q01");
+  const ticketItem = await TicketItem.deploy("Qatar-01", "Q01");  
   await ticketItem.deployed();
+  ticketItem.setBaseURI("https://ipfs.io/ipfs/")
   return ticketItem;
 
 } 
