@@ -3,15 +3,13 @@ import ticketsTAbi from "../artifacts/contracts/TicketsT.sol/TicketsT.json";
 import ticketsItemAbi from "../artifacts/contracts/TicketItem.sol/TicketItem.json";
 import eventTokenAbi from "../artifacts/contracts/EventToken.sol/EventToken.json";
 async function main() {
-    const ticketTAddress = "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
-    const tickeItemAddress = "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1"
-    const eventTokenAddress = "0x68B1D87F95878fE05B998F19b66F4baba5De1aed";
+    const ticketTAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+    const tickeItemAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    const eventTokenAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
     const contractInstance = await ethers.getContractAt(ticketsTAbi.abi, ticketTAddress);
     const nftIntance = await ethers.getContractAt(ticketsItemAbi.abi, tickeItemAddress);
     const eventTokenInstance = await ethers.getContractAt(eventTokenAbi.abi, eventTokenAddress);
-
-    const privateKeyCustomer = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
     
     const [signer1] = await ethers.getSigners();
 
@@ -21,12 +19,12 @@ async function main() {
     
     console.log(`current ticket price: ${ethers.utils.formatEther(ticketPrice)}`);
     console.log(`sold tickets: ${soldtickets}`);
-
-    const wallet = new ethers.Wallet(privateKeyCustomer);    
+  
     await contractInstance.connect(signer1).buyTicket({value: ticketPrice});
     soldtickets = await contractInstance.soldTickets();
     const ticketId = await contractInstance.attendees(signer1.address); 
     const ticketMetadata = await nftIntance.tokenURI(ticketId);
+    
     console.log(`ticket Id purchased: ${ticketId}`)
     console.log(`sold tickets: ${soldtickets}`);
     console.log(`ticket metadata: ${ticketMetadata}`);
