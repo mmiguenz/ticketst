@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
 import { TicketItem, TicketsT } from "../typechain-types";
-import {default as cidMap} from "../metadata/metadata-cid.json";
+import { default as cidMap } from "../metadata/metadata-cid.json";
 describe("TikcketsT", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
@@ -17,11 +17,11 @@ describe("TikcketsT", function () {
     const TicketItem = await ethers.getContractFactory("TicketItem");
     const ticketPrice = ethers.utils.parseEther("10")
     const totalTickets = 2
-    
+
     const ticketItem = await TicketItem.deploy("Tickets", "TKT")
     await ticketItem.setBaseURI("https://ipfs.io/ipfs/");
 
-    const cidList = [...Array(totalTickets).keys()].map(ticketId => cidMap[`ticket-${ticketId + 1}`])    
+    const cidList = [...Array(totalTickets).keys()].map(ticketId => cidMap[`ticket-${ticketId + 1}`])
     const ticketsT = await TicketsT.deploy(ticketPrice, totalTickets, ticketItem.address, cidList, {});
 
     await ticketItem.transferOwnership(ticketsT.address)
@@ -33,7 +33,7 @@ describe("TikcketsT", function () {
 
       const { ticketsT } = await deployFixture();
 
-      expect(ticketsT.address).not.null;      
+      expect(ticketsT.address).not.null;
     });
 
     it("Should set the right owner", async function () {
@@ -54,31 +54,40 @@ describe("TikcketsT", function () {
 
   describe("BuyTickets", function () {
     const whenBuyTickets = async (ticketsT: TicketsT, customer: SignerWithAddress, price: BigNumber) => await ticketsT.connect(customer).buyTicket({ value: price })
-      const shouldBeRevertedWith = async (tx: Promise<ContractTransaction>, message: string) => await expect(tx).to.be.revertedWith(message)
-      const givenASoldOutEvent = async (ticketsT: TicketsT, customer2: SignerWithAddress, customer3: SignerWithAddress, price: BigNumber) => {
-        await ticketsT.connect(customer2).buyTicket({ value: price })
-        await ticketsT.connect(customer3).buyTicket({ value: price })
-      }
+    const shouldBeRevertedWith = async (tx: Promise<ContractTransaction>, message: string) => await expect(tx).to.be.revertedWith(message)
+    const givenASoldOutEvent = async (ticketsT: TicketsT, customer2: SignerWithAddress, customer3: SignerWithAddress, price: BigNumber) => {
+      await ticketsT.connect(customer2).buyTicket({ value: await ticketsT.getTicketPrice() })
+      await ticketsT.connect(customer3).buyTicket({ value: await ticketsT.getTicketPrice() })
+    }
 
-      const shouldBuyTicket = async (ticketsT: TicketsT, tx: Promise<ContractTransaction>, totalTickets: number, customer: SignerWithAddress) => {        
-        await expect(tx).to.emit(ticketsT, "ticketEvent");
-        expect(await ticketsT.soldTickets()).to.be.equals(1)
-        expect(await ticketsT.ticketsAvailable()).to.be.equals(totalTickets - 1)
-        expect(await ticketsT.attendees(customer.address)).not.to.be.empty
-      }
+    const shouldBuyTicket = async (ticketsT: TicketsT, tx: Promise<ContractTransaction>, totalTickets: number, customer: SignerWithAddress) => {
+      await expect(tx).to.emit(ticketsT, "ticketEvent");
+      expect(await ticketsT.soldTickets()).to.be.equals(1)
+      expect(await ticketsT.ticketsAvailable()).to.be.equals(totalTickets - 1)
+      expect(await ticketsT.attendees(customer.address)).not.to.be.empty
+    }
 
-      const shouldBeOwnerOfMintedNft = async (customer: SignerWithAddress, ticketItem: TicketItem) => {
-            const expectedTokenId = 1;
-            expect(await ticketItem.ownerOf(expectedTokenId)).to.be.equals(customer.address);
-            expect(await ticketItem.tokenURI(expectedTokenId)).to.be.equals("https://ipfs.io/ipfs/QmYVFQjbZMaY28ytihRyQ3U4s6XwdUf1Wxvijir5JE6KpR");
-      }
+    const shouldBeOwnerOfMintedNft = async (customer: SignerWithAddress, ticketItem: TicketItem) => {
+      const expectedTokenId = 1;
+      expect(await ticketItem.ownerOf(expectedTokenId)).to.be.equals(customer.address);
+      expect(await ticketItem.tokenURI(expectedTokenId)).to.be.equals("https://ipfs.io/ipfs/QmYVFQjbZMaY28ytihRyQ3U4s6XwdUf1Wxvijir5JE6KpR");
+    }
+
+    const shouldIncrementTicketPrice = async (ticketsT: TicketsT, lastPrice: BigNumber) => {      
+      const currentPrice = +ethers.utils.formatEther(await ticketsT.getTicketPrice());      
+      const convertedLastPrice = +ethers.utils.formatEther(lastPrice);
+
+      expect(currentPrice).to.be.equals(convertedLastPrice + convertedLastPrice);      
+    }
+
+
 
     it("Should validate ticket price", async function () {
 
       const { ticketsT, customer } = await deployFixture();
 
       const insuficentPrice = ethers.utils.parseEther("1")
-    
+
       const tx = whenBuyTickets(ticketsT, customer, insuficentPrice)
 
       await shouldBeRevertedWith(tx, "lower than current price")
@@ -90,7 +99,7 @@ describe("TikcketsT", function () {
 
       await givenASoldOutEvent(ticketsT, customer2, customer3, ticketPrice)
 
-      const tx = whenBuyTickets(ticketsT, customer, ticketPrice)
+      const tx = whenBuyTickets(ticketsT, customer, await ticketsT.getTicketPrice())
 
       await shouldBeRevertedWith(tx, "sold out")
     });
@@ -98,10 +107,19 @@ describe("TikcketsT", function () {
     it("Should buy ticket", async function () {
 
       const { ticketsT, ticketPrice, customer, totalTickets, ticketItem } = await deployFixture();
-      const tx = whenBuyTickets(ticketsT, customer, ticketPrice)     
+      const tx = whenBuyTickets(ticketsT, customer, ticketPrice)
 
       await shouldBuyTicket(ticketsT, tx, totalTickets, customer)
       await shouldBeOwnerOfMintedNft(customer, ticketItem)
+    });
+
+    it("should increment ticket price with each purchase", async function () {
+
+      const { ticketsT, customer } = await deployFixture();
+      const ticketPrice = await  ticketsT.getTicketPrice();
+      const tx = await whenBuyTickets(ticketsT, customer, ticketPrice)
+
+      await shouldIncrementTicketPrice(ticketsT, ticketPrice)
     });
   });
 });

@@ -104,10 +104,12 @@ export interface TicketsTInterface extends utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
+    "priceChanged(uint256)": EventFragment;
     "ticketEvent(uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "priceChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ticketEvent"): EventFragment;
 }
 
@@ -122,6 +124,16 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface priceChangedEventObject {
+  newPrice: BigNumber;
+}
+export type priceChangedEvent = TypedEvent<
+  [BigNumber],
+  priceChangedEventObject
+>;
+
+export type priceChangedEventFilter = TypedEventFilter<priceChangedEvent>;
 
 export interface ticketEventEventObject {
   recieved: BigNumber;
@@ -247,6 +259,9 @@ export interface TicketsT extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "priceChanged(uint256)"(newPrice?: null): priceChangedEventFilter;
+    priceChanged(newPrice?: null): priceChangedEventFilter;
 
     "ticketEvent(uint256,uint256)"(
       recieved?: null,
