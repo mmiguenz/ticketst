@@ -106,11 +106,13 @@ export interface TicketsTInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "priceChanged(uint256)": EventFragment;
     "ticketEvent(uint256,uint256)": EventFragment;
+    "tokensRewarded(uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "priceChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ticketEvent"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "tokensRewarded"): EventFragment;
 }
 
 export interface OwnershipTransferredEventObject {
@@ -145,6 +147,16 @@ export type ticketEventEvent = TypedEvent<
 >;
 
 export type ticketEventEventFilter = TypedEventFilter<ticketEventEvent>;
+
+export interface tokensRewardedEventObject {
+  tokensRewarded: BigNumber;
+}
+export type tokensRewardedEvent = TypedEvent<
+  [BigNumber],
+  tokensRewardedEventObject
+>;
+
+export type tokensRewardedEventFilter = TypedEventFilter<tokensRewardedEvent>;
 
 export interface TicketsT extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -268,6 +280,9 @@ export interface TicketsT extends BaseContract {
       ticketId?: null
     ): ticketEventEventFilter;
     ticketEvent(recieved?: null, ticketId?: null): ticketEventEventFilter;
+
+    "tokensRewarded(uint256)"(tokensRewarded?: null): tokensRewardedEventFilter;
+    tokensRewarded(tokensRewarded?: null): tokensRewardedEventFilter;
   };
 
   estimateGas: {

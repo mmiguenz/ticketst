@@ -13,6 +13,7 @@ contract TicketsT is Ownable {
     string[] ticketsTokenUri;
     event ticketEvent(uint256 recieved, uint256 ticketId);
     event priceChanged(uint256 newPrice);
+    event tokensRewarded(uint256 tokensRewarded);
     TicketItem ticketContract;
     IERC20 eventTokenContract;
 
@@ -39,9 +40,10 @@ contract TicketsT is Ownable {
         require(ticketsAvailable() > 0, "sold out");
 
         soldTickets = soldTickets + 1;        
-        
+
         if (msg.value > currentPrice ) {
-           eventTokenContract.transfer(msg.sender, 10);
+           eventTokenContract.transfer(msg.sender, 10);           
+           emit tokensRewarded(10);
         }
 
 
@@ -52,6 +54,8 @@ contract TicketsT is Ownable {
         );
         attendees[msg.sender] = soldTickets;
         currentPrice = currentPrice + currentPrice ;
+        
+        emit priceChanged(currentPrice);
         emit ticketEvent(msg.value, soldTickets);
     }
 

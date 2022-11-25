@@ -77,15 +77,16 @@ describe("TikcketsT", function () {
       expect(await ticketItem.tokenURI(expectedTokenId)).to.be.equals("https://ipfs.io/ipfs/QmYVFQjbZMaY28ytihRyQ3U4s6XwdUf1Wxvijir5JE6KpR");
     }
 
-    const shouldIncrementTicketPrice = async (ticketsT: TicketsT, lastPrice: BigNumber) => {      
+    const shouldIncrementTicketPrice = async (tx: ContractTransaction, ticketsT: TicketsT, lastPrice: BigNumber) => {      
       const currentPrice = +ethers.utils.formatEther(await ticketsT.getTicketPrice());      
       const convertedLastPrice = +ethers.utils.formatEther(lastPrice);
 
-      expect(currentPrice).to.be.equals(convertedLastPrice + convertedLastPrice);      
+      expect(currentPrice).to.be.equals(convertedLastPrice + convertedLastPrice);   
+      await expect(tx).to.emit(ticketsT, "priceChanged");   
     }
     
-    const shouldRetrieveWithTokensToCustomer = async (customer: SignerWithAddress, eventToken: EventToken) => {           
-
+    const shouldRetrieveWithTokensToCustomer = async (tx: ContractTransaction,customer: SignerWithAddress, ticketsT: TicketsT, eventToken: EventToken) => {           
+      await expect(tx).to.emit(ticketsT, "tokensRewarded");   
       expect(await eventToken.balanceOf(customer.address)).to.be.equals(10);      
     }
 
@@ -128,16 +129,15 @@ describe("TikcketsT", function () {
       const ticketPrice = await  ticketsT.getTicketPrice();
       const tx = await whenBuyTickets(ticketsT, customer, ticketPrice)
 
-      await shouldIncrementTicketPrice(ticketsT, ticketPrice)
+      await shouldIncrementTicketPrice(tx, ticketsT, ticketPrice)
     });
 
     it("should retrieve with tokens when value sent is higher than current price", async function () {
 
-      const { ticketsT, customer, eventToken } = await deployFixture();
-      const ticketPrice = await  ticketsT.getTicketPrice();
+      const { ticketsT, customer, eventToken } = await deployFixture();      
       const tx = await whenBuyTickets(ticketsT, customer, ethers.utils.parseEther("50"))
 
-      await shouldRetrieveWithTokensToCustomer(customer, eventToken)
+      await shouldRetrieveWithTokensToCustomer(tx, customer, ticketsT, eventToken)
     });
   });
 });

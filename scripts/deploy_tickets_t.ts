@@ -4,8 +4,11 @@ import {default as cidMap} from "../metadata/metadata-cid.json";
 
 async function main() {
  const ticketItem = await  deployTicketItem()
- const eventToken = await deployEventToken()
  console.log(`TicketItem Deployed at: ${ticketItem.address}`)
+
+ const eventToken = await deployEventToken()
+ console.log(`EventToken Deployed at: ${eventToken.address}`)
+ 
  const ticketT =  await deployTicketT(ticketItem, eventToken)
  console.log(`TicketT Deployed at: ${ticketT.address}`)
 

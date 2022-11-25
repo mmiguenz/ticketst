@@ -1,23 +1,28 @@
 import { ethers } from "hardhat";
-import { TicketsT } from "../typechain-types";
 import ticketsTAbi from "../artifacts/contracts/TicketsT.sol/TicketsT.json";
 import ticketsItemAbi from "../artifacts/contracts/TicketItem.sol/TicketItem.json";
+import eventTokenAbi from "../artifacts/contracts/EventToken.sol/EventToken.json";
 async function main() {
-    const ticketTAddress = "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"
-    const tickeItemAddress = "0x610178dA211FEF7D417bC0e6FeD39F05609AD788"
+    const ticketTAddress = "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
+    const tickeItemAddress = "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1"
+    const eventTokenAddress = "0x68B1D87F95878fE05B998F19b66F4baba5De1aed";
+
     const contractInstance = await ethers.getContractAt(ticketsTAbi.abi, ticketTAddress);
     const nftIntance = await ethers.getContractAt(ticketsItemAbi.abi, tickeItemAddress);
-    const privateKeyCustomer = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+    const eventTokenInstance = await ethers.getContractAt(eventTokenAbi.abi, eventTokenAddress);
 
+    const privateKeyCustomer = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+    
     const [signer1] = await ethers.getSigners();
 
     const ticketPrice = await contractInstance.getTicketPrice()
     let soldtickets = await contractInstance.soldTickets();
+
+    
     console.log(`current ticket price: ${ethers.utils.formatEther(ticketPrice)}`);
     console.log(`sold tickets: ${soldtickets}`);
 
-    const wallet = new ethers.Wallet(privateKeyCustomer);
-    console.log(await signer1.getBalance())
+    const wallet = new ethers.Wallet(privateKeyCustomer);    
     await contractInstance.connect(signer1).buyTicket({value: ticketPrice});
     soldtickets = await contractInstance.soldTickets();
     const ticketId = await contractInstance.attendees(signer1.address); 
@@ -26,9 +31,7 @@ async function main() {
     console.log(`sold tickets: ${soldtickets}`);
     console.log(`ticket metadata: ${ticketMetadata}`);
 
-
-
-
+    console.log(`tokens recieved: ${await eventTokenInstance.balanceOf(signer1.address)}`);
 }
 
 
