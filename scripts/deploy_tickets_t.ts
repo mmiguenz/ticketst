@@ -1,5 +1,6 @@
 import { ethers } from "hardhat";
 import { TicketItem } from "../typechain-types";
+import {default as cidMap} from "../metadata/metadata-cid.json";
 
 async function main() {
  const ticketItem = await  deployTicketItem()
@@ -23,13 +24,13 @@ const deployTicketItem = async () => {
 } 
 
 const deployTicketT = async (ticketItem: TicketItem) => {
-  const TicketT = await ethers.getContractFactory("TicketsT");
+  const TicketsT = await ethers.getContractFactory("TicketsT");
   const initial_price = ethers.utils.parseEther("10")
-  const totalTickets = 10;
-  const ticketT = await TicketT.deploy(initial_price, totalTickets, ticketItem.address)
-  await ticketT.deployed();
-  return ticketT;
-
+  const totalTickets = 5;
+  const cidList = [...Array(totalTickets).keys()].map(ticketId => cidMap[`ticket-${ticketId + 1}`])    
+  const ticketsT = await TicketsT.deploy(initial_price, totalTickets, ticketItem.address, cidList, {});
+  await ticketsT.deployed();
+  return ticketsT;
 } 
 
 // We recommend this pattern to be able to use async/await everywhere

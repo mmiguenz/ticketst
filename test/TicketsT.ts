@@ -2,8 +2,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
-import { TicketsT } from "../typechain-types";
-
+import { TicketItem, TicketsT } from "../typechain-types";
+import {default as cidMap} from "../metadata/metadata-cid.json";
 describe("TikcketsT", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
@@ -17,11 +17,15 @@ describe("TikcketsT", function () {
     const TicketItem = await ethers.getContractFactory("TicketItem");
     const ticketPrice = ethers.utils.parseEther("10")
     const totalTickets = 2
-
+    
     const ticketItem = await TicketItem.deploy("Tickets", "TKT")
-    const ticketsT = await TicketsT.deploy(ticketPrice, totalTickets, ticketItem.address, {});
+    await ticketItem.setBaseURI("https://ipfs.io/ipfs/");
+
+    const cidList = [...Array(totalTickets).keys()].map(ticketId => cidMap[`ticket-${ticketId + 1}`])    
+    const ticketsT = await TicketsT.deploy(ticketPrice, totalTickets, ticketItem.address, cidList, {});
+
     await ticketItem.transferOwnership(ticketsT.address)
-    return { ticketsT, owner, ticketPrice, customer, totalTickets, customer2, customer3 };
+    return { ticketsT, owner, ticketPrice, customer, totalTickets, customer2, customer3, ticketItem };
   }
 
   describe("Deployment", function () {
@@ -29,7 +33,7 @@ describe("TikcketsT", function () {
 
       const { ticketsT } = await deployFixture();
 
-      expect(ticketsT.address).not.null;
+      expect(ticketsT.address).not.null;      
     });
 
     it("Should set the right owner", async function () {
@@ -63,6 +67,12 @@ describe("TikcketsT", function () {
         expect(await ticketsT.attendees(customer.address)).not.to.be.empty
       }
 
+      const shouldBeOwnerOfMintedNft = async (customer: SignerWithAddress, ticketItem: TicketItem) => {
+            const expectedTokenId = 1;
+            expect(await ticketItem.ownerOf(expectedTokenId)).to.be.equals(customer.address);
+            expect(await ticketItem.tokenURI(expectedTokenId)).to.be.equals("https://ipfs.io/ipfs/QmYVFQjbZMaY28ytihRyQ3U4s6XwdUf1Wxvijir5JE6KpR");
+      }
+
     it("Should validate ticket price", async function () {
 
       const { ticketsT, customer } = await deployFixture();
@@ -87,10 +97,11 @@ describe("TikcketsT", function () {
 
     it("Should buy ticket", async function () {
 
-      const { ticketsT, ticketPrice, customer, totalTickets } = await deployFixture();
+      const { ticketsT, ticketPrice, customer, totalTickets, ticketItem } = await deployFixture();
       const tx = whenBuyTickets(ticketsT, customer, ticketPrice)     
 
       await shouldBuyTicket(ticketsT, tx, totalTickets, customer)
+      await shouldBeOwnerOfMintedNft(customer, ticketItem)
     });
   });
 });

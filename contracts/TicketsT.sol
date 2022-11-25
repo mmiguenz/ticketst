@@ -11,14 +11,16 @@ contract TicketsT {
     uint256 currentPrice;
     uint256 public soldTickets;
     mapping(address => uint256) public attendees;
+    string[] ticketsTokenUri;
     event ticketEvent(uint256 recieved, uint256 ticketId);
     TicketItem ticketContract;    
 
-    constructor(uint256 _ticketInitialPrice, uint256 _totalTickets, address _ticketContract) payable {
+    constructor(uint256 _ticketInitialPrice, uint256 _totalTickets, address _ticketContract, string[] memory _ticketsTokenUri) {
         owner = payable(msg.sender);
         currentPrice = _ticketInitialPrice;  
         totalTickets = _totalTickets;
-        ticketContract = TicketItem(_ticketContract);       
+        ticketContract = TicketItem(_ticketContract);
+        ticketsTokenUri = _ticketsTokenUri;              
     }
 
     function getTicketPrice() public view returns(uint256) {
@@ -30,7 +32,7 @@ contract TicketsT {
        require(ticketsAvailable() > 0, "sold out");
                          
        soldTickets = soldTickets + 1;
-       ticketContract.mintTicket(msg.sender, soldTickets, "");
+       ticketContract.mintTicket(msg.sender, soldTickets, ticketsTokenUri[soldTickets - 1]);
        attendees[msg.sender] = soldTickets;       
        emit ticketEvent(msg.value, soldTickets);       
     }

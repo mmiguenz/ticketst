@@ -1,0 +1,10 @@
+{
+    "name": "metadata-name",
+    "description": "this is the metadata description",
+    "image": "metada",
+    "attributes": [
+        {
+            "ticket_type": "1"
+        }
+    ]
+}

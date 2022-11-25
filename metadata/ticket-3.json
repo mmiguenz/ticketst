@@ -1,0 +1,10 @@
+{
+    "name": "ticket-3",
+    "description": "this is the ticket number 3 for the event",
+    "image": "https://ipfs.io/ipfs/Qmbhxr7K49QA6wZX1YM4vEURkp5Acomzj2X6ZrKnW7LXRh?filename=ticket-3.png",
+    "attributes": [
+        {
+            "ticket_type": "common"
+        }
+    ]
+}
