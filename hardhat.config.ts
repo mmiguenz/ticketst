@@ -8,16 +8,7 @@ const GOERLI_PRIVATE_KEY =  process.env["GOERLI_PRIVATE_KEY"];
 const ETHERSCAN_KEY = process.env["ETHERSCAN_KEY"]
 
 const config: any = {
-  solidity: "0.8.9",
-  networks: {
-    goerli: {
-      url: `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
-      accounts: [GOERLI_PRIVATE_KEY]
-    },
-    localhost: {
-      gas: 6000000
-    }
-  },
+  solidity: "0.8.9", 
   etherscan: {
     apiKey: ETHERSCAN_KEY,
   },

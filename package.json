@@ -1,0 +1,35 @@
+{
+  "name": "ticketst",
+  "version": "1.0.0",
+  "description": "- This is a project to publish events and manage tickets and their purchases - Each purchase will mint an NFT token - As price might change over the time, users might ensure their ticket by sending extra money. So when extra money is received this contract will reward with a token that will be used to buy items during the event",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmiguenz/ticketst.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mmiguenz/ticketst/issues"
+  },
+  "homepage": "https://github.com/mmiguenz/ticketst#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.1",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.12.3",
+    "ganache-cli": "^6.12.2",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0",
+    "dotenv": "^16.0.3"
+  }
+}
