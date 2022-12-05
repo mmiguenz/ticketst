@@ -5,6 +5,11 @@
 - As price might change over the time, users might ensure their ticket by sending extra money. So when extra money is received this contract will reward with a token that will be used to buy items during the event
 
 
+## setup
+```shell
+npm install
+```
+
 ## Compile project
 ```shell
 npx hardhat compile
